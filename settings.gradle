@@ -1,0 +1,20 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+rootProject.name = "SimpleSDK"
+include ':simplesdk-core'
+include ':simplesdk-auth-adapter-google'
+include ':simplesdk-auth-adapter-facebook'
+include ':simplesdk-sample'
+include ':simplesdk'

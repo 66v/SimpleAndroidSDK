@@ -4,10 +4,17 @@ import com.x66vx.simplesdk.*
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.Robolectric
+import org.robolectric.RobolectricTestRunner
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
+
+@RunWith(RobolectricTestRunner::class)
 class SimpleSDKCoreTest {
+    private val activity = Robolectric.buildActivity(TestActivity::class.java).setup().get()
+
     @Test
     fun testInitialize() = runBlocking {
         val core = SimpleSDKCore()
@@ -28,7 +35,7 @@ class SimpleSDKCoreTest {
 
         suspend fun login(core: SimpleSDKCore?, authType: String?) =
             suspendCoroutine<LoginResult<AuthData?, SDKError?>> { cont ->
-                core.login(authType) { authData, sdkError ->
+                core.login(activity, authType) { authData, sdkError ->
                     cont.resume(LoginResult(authData, sdkError))
                 }
             }
@@ -72,7 +79,7 @@ class SimpleSDKCoreTest {
 
         suspend fun purchase(core: SimpleSDKCore?, storeType: String?) =
             suspendCoroutine<PurchaseResult<PurchaseData?, SDKError?>> { cont ->
-                core.purchase(storeType) { storeData, sdkError ->
+                core.purchase(activity, storeType) { storeData, sdkError ->
                     cont.resume(PurchaseResult(storeData, sdkError))
                 }
             }

@@ -4,7 +4,6 @@ import com.x66vx.simplesdk.core.internal.auth.CLASS_NAME_AUTH_TYPE
 import com.x66vx.simplesdk.core.internal.purchase.CLASS_NAME_STORE_TYPE
 import org.junit.Assert.*
 import org.junit.Test
-import java.util.*
 
 class ReflectionHelperTest {
     private val testClassNames = arrayOf(CLASS_NAME_AUTH_TYPE, CLASS_NAME_STORE_TYPE)

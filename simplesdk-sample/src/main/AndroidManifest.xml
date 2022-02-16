@@ -18,6 +18,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <meta-data
+            android:name="com.x66vx.simplesdk.google.serverclientid"
+            android:value="Your Google Web Client ID" />
+
     </application>
 
 </manifest>

@@ -1,18 +1,24 @@
 package com.x66vx.simplesdk.core.internal.util
 
 import com.x66vx.simplesdk.core.internal.auth.CLASS_NAME_AUTH_TYPE
+import com.x66vx.simplesdk.core.internal.purchase.CLASS_NAME_STORE_TYPE
 import org.junit.Assert.*
 import org.junit.Test
+import java.util.*
 
 class ReflectionHelperTest {
+    private val testClassNames = arrayOf(CLASS_NAME_AUTH_TYPE, CLASS_NAME_STORE_TYPE)
+
     @Test
     fun findInnerClass() {
-        val clazz = Class.forName(CLASS_NAME_AUTH_TYPE)
-        assertNotNull(clazz)
-        val stringFields = clazz.declaredFields
-            .filter { it.get(null) is String }
-        assertNotNull(stringFields)
-        assertNotEquals(0, stringFields.size)
+        for (className in testClassNames) {
+            val clazz = Class.forName(className)
+            assertNotNull(clazz)
+            val stringFields = clazz.declaredFields
+                .filter { it.get(null) is String }
+            assertNotNull(stringFields)
+            assertNotEquals(0, stringFields.size)
+        }
     }
 
     @Test
@@ -21,19 +27,33 @@ class ReflectionHelperTest {
         assertNotNull(list)
         assertEquals(0, list.size)
 
-        list = getStringFields(CLASS_NAME_AUTH_TYPE)
-        assertNotNull(list)
-        assertNotEquals(0, list.size)
+        for (className in testClassNames) {
+            list = getStringFields(className)
+            assertNotNull(list)
+            assertNotEquals(0, list.size)
 
-        val emptyList: List<Int> = getStringFields(CLASS_NAME_AUTH_TYPE)
-        assertNotNull(emptyList)
-        assertEquals(0, emptyList.size)
+            val emptyList: List<Int> = getStringFields(className)
+            assertNotNull(emptyList)
+            assertEquals(0, emptyList.size)
+        }
     }
 
     @Test
     fun testExist() {
-        assertTrue(exist(CLASS_NAME_AUTH_TYPE))
-        assertFalse(exist("${CLASS_NAME_AUTH_TYPE}2"))
         assertFalse(exist("invalidPackage"))
+
+        for (className in testClassNames) {
+            assertTrue(exist(className))
+            assertFalse(exist("${className}2"))
+        }
+    }
+
+    @Test
+    fun testGetClassFullNameForAdapter() {
+        val type = "type"
+        val path = "abc.bcd.cde"
+        val prefix = "abcdeee"
+        assertEquals("$path.$type.${prefix}Type", getClassFullNameForAdapter(type, path, prefix))
+        assertEquals("$path.$type.Type", getClassFullNameForAdapter(type, path))
     }
 }

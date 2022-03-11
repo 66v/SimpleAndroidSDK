@@ -1,10 +1,12 @@
 package com.x66vx.simplesdk.sample
 
+import android.app.Activity
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.annotation.IntDef
+import androidx.appcompat.app.AppCompatActivity
 import com.x66vx.simplesdk.*
 import com.x66vx.simplesdk.log.LogWrapper
 
@@ -21,83 +23,69 @@ class MainActivity : AppCompatActivity() {
         SimpleSDK.onActivityResult(requestCode, resultCode, data)
     }
 
-    fun onClickSimpleSDKInitialize(view: View) {
+    fun onClickSimpleSDKInitialize(@Suppress("UNUSED_PARAMETER") view: View) {
         SimpleSDK.initialize(object: VoidCallback {
             override fun onResult(error: SDKError?) {
-                if (error.isSuccess()) {
-                    val resultLog = "Initialize Succeeded"
-                    LogWrapper.i(TAG, resultLog)
-                    this@MainActivity.runOnUiThread {
-                        Toast.makeText(this@MainActivity, resultLog, Toast.LENGTH_SHORT).show()
-                    }
-                } else {
-                    val resultLog = "Initialize Failed : ${error.toString()}"
-                    LogWrapper.e(TAG, resultLog)
-                    this@MainActivity.runOnUiThread {
-                        Toast.makeText(this@MainActivity, resultLog, Toast.LENGTH_LONG).show()
-                    }
-                }
+                showResult(this@MainActivity, "Initialize", null, error)
             }
         })
     }
 
-    fun onClickSimpleSDKLoginGoogle(view: View) {
+    fun onClickSimpleSDKLoginGoogle(@Suppress("UNUSED_PARAMETER") view: View) {
         SimpleSDK.Auth.login(this, AuthType.GOOGLE, object: DataCallback<AuthData> {
             override fun onResult(data: AuthData?, error: SDKError?) {
-                if (error.isSuccess()) {
-                    val resultLog = "Login Google Succeeded : $data"
-                    LogWrapper.i(TAG, resultLog)
-                    this@MainActivity.runOnUiThread {
-                        Toast.makeText(this@MainActivity, resultLog, Toast.LENGTH_SHORT).show()
-                    }
-                } else {
-                    val resultLog = "Login Google Failed : ${error.toString()}"
-                    LogWrapper.e(TAG, resultLog)
-                    this@MainActivity.runOnUiThread {
-                        Toast.makeText(this@MainActivity, resultLog, Toast.LENGTH_LONG).show()
-                    }
-                }
+                showResult(this@MainActivity, "Login Google", data, error)
             }
         })
     }
 
-    fun onClickSimpleSDKLoginFacebook(view: View) {
+    fun onClickSimpleSDKLoginFacebook(@Suppress("UNUSED_PARAMETER") view: View) {
         SimpleSDK.Auth.login(this, AuthType.FACEBOOK, object: DataCallback<AuthData> {
             override fun onResult(data: AuthData?, error: SDKError?) {
-                if (error.isSuccess()) {
-                    val resultLog = "Login Facebook Succeeded : $data"
-                    LogWrapper.i(TAG, resultLog)
-                    this@MainActivity.runOnUiThread {
-                        Toast.makeText(this@MainActivity, resultLog, Toast.LENGTH_SHORT).show()
-                    }
-                } else {
-                    val resultLog = "Login Facebook Failed : ${error.toString()}"
-                    LogWrapper.e(TAG, resultLog)
-                    this@MainActivity.runOnUiThread {
-                        Toast.makeText(this@MainActivity, resultLog, Toast.LENGTH_LONG).show()
-                    }
-                }
+                showResult(this@MainActivity, "Login Facebook", data, error)
             }
         })
     }
 
-    fun onClickSimpleSDKLogout(view: View) {
+    fun onClickSimpleSDKLogout(@Suppress("UNUSED_PARAMETER") view: View) {
         SimpleSDK.Auth.logout(this, object: VoidCallback {
             override fun onResult(error: SDKError?) {
-                if (error.isSuccess()) {
-                    val resultLog = "Logout Succeeded"
-                    LogWrapper.i(TAG, resultLog)
-                    this@MainActivity.runOnUiThread {
-                        Toast.makeText(this@MainActivity, resultLog, Toast.LENGTH_SHORT).show()
-                    }
-                } else {
-                    val resultLog = "Logout Failed : ${error.toString()}"
-                    LogWrapper.e(TAG, resultLog)
-                    this@MainActivity.runOnUiThread {
-                        Toast.makeText(this@MainActivity, resultLog, Toast.LENGTH_LONG).show()
-                    }
-                }
+                showResult(this@MainActivity, "Logout", null, error)
             }
         })
+    }
+
+    private fun showResult(activity: Activity?,
+                           funcName: String,
+                           data: Any?,
+                           error: SDKError?) {
+        val logFunc: (String?, String) -> Int
+        val resultLog: String
+        val toastLength: Int
+        if (error.isSuccess()) {
+            val dataString = data?.let { " : $it" } ?: ""
+            resultLog = "$funcName Succeeded$dataString"
+            logFunc = LogWrapper.Companion::i
+            toastLength = Toast.LENGTH_SHORT
+        } else {
+            resultLog = "$funcName Failed : ${error.toString()}"
+            logFunc = LogWrapper.Companion::e
+            toastLength = Toast.LENGTH_LONG
+        }
+        showLog(logFunc, resultLog)
+        showToast(activity, resultLog, toastLength)
+    }
+
+    private fun showLog(func: (String?, String) -> Int, msg: String) {
+        func(TAG, msg)
+    }
+
+    @IntDef(value = [Toast.LENGTH_SHORT, Toast.LENGTH_LONG])
+    @kotlin.annotation.Retention(AnnotationRetention.SOURCE)
+    private annotation class Duration
+    private fun showToast(activity: Activity?,
+                          text: CharSequence?,
+                          @Duration duration: Int) {
+        activity?.runOnUiThread { Toast.makeText(activity, text, duration).show() }
     }
 }
